@@ -8,6 +8,8 @@ import ManageEmployeePage from './pages/ManageEmployeePage';
 import ApprovalPage from './pages/ApprovalPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
+import EmployeeDashboardPage from './pages/EmployeeDashboardPage'; // ✅ New page
+import EmployeeRequestPage from './pages/EmployeeRequestPage';     // ✅ New page
 
 function App() {
     return (
@@ -41,6 +43,27 @@ function App() {
                                 </ProtectedRoute>
                             }
                         />
+
+                        {/* ✅ Employee-specific routes */}
+                        <Route
+                            path="/employee-dashboard"
+                            element={
+                                <ProtectedRoute allowedRoles={['Employee']}>
+                                    <EmployeeDashboardPage />
+                                </ProtectedRoute>
+                            }
+                        />
+
+                        <Route
+                            path="/employee-request"
+                            element={
+                                <ProtectedRoute allowedRoles={['Employee']}>
+                                    <EmployeeRequestPage />
+                                </ProtectedRoute>
+                            }
+                        />
+
+
                     </Routes>
                 </div>
             </AuthProvider>
