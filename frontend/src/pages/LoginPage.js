@@ -1,30 +1,31 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'; // ✅ Axios import karein
+import axios from 'axios';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import './css/LoginPage.css';
+// sdf
 
 const LoginPage = () => {
-    const [loginAs, setLoginAs] = useState(''); // ✅ State define karein
-    const [loginId, setLoginId] = useState(''); // ✅ State define karein
-    const [password, setPassword] = useState(''); // ✅ State define karein
+    const [loginAs, setLoginAs] = useState('');
+    const [loginId, setLoginId] = useState('');
+    const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    const navigate = useNavigate(); // ✅ Navigate define karein
-    const { login } = useAuth(); // ✅ Login function define karein
+    const navigate = useNavigate();
+    const { login } = useAuth();
 
     const handleLogin = async (e) => {
         e.preventDefault();
 
         if (!loginAs || !loginId.trim() || !password.trim()) {
-            alert('Please fill in all the required fields.');
+            alert('Please fill in all required fields.');
             return;
         }
 
         try {
-            // BACKEND LOGIN API CALL
+            // Backend login API
             const response = await axios.post('http://127.0.0.1:8000/api/login', {
                 email: loginId,
                 password: password,
@@ -33,53 +34,50 @@ const LoginPage = () => {
             if (response.data.success) {
                 const user = response.data.user;
                 const token = response.data.token;
-                
-                // Backend se mila token use karein
+
                 localStorage.setItem('isLoggedIn', 'true');
                 localStorage.setItem('role', user.role);
-                localStorage.setItem('email', user.email);
-                localStorage.setItem('authToken', token); // REAL TOKEN
-                
+                localStorage.setItem('loggedInUserEmail', user.email);
+                localStorage.setItem('authToken', token);
+
                 login(user.role);
-                alert('Login Successful! (Database)');
-                
+                alert('Login Successful!');
+
                 if (user.role === 'HR') {
                     navigate('/add-employee');
                 } else {
-                    navigate('/manage-employee');
+                    navigate('/employee-dashboard');
                 }
             }
         } catch (error) {
             console.error("Login Error:", error);
-            
-            // Fallback: Frontend login
+
+            // Fallback: Local login
             localStorage.setItem('isLoggedIn', 'true');
             localStorage.setItem('role', loginAs);
-            localStorage.setItem('email', loginId);
+            localStorage.setItem('loggedInUserEmail', loginId);
             localStorage.setItem('authToken', 'fallback-token-' + Date.now());
-            
+
             login(loginAs);
             alert('Login Successful! (Local Mode)');
-            
+
             if (loginAs === 'HR') {
                 navigate('/add-employee');
             } else {
-                navigate('/manage-employee');
+                navigate('/employee-dashboard'); // Consistent for employees
             }
         }
     };
 
-    const togglePasswordVisibility = () => {
-        setShowPassword(!showPassword);
-    };
+    const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
     return (
-        <div className="container login-page-container"> 
+        <div className="container login-page-container">
             <Header />
-            <main className="login-main">
+            <main className="login-main" style={{ marginTop: '70px', marginBottom: '70px' }}>
                 <div className="login-box">
                     <h2>LOGIN</h2>
-                    <p style={{textAlign: 'center', color: '#666', fontSize: '14px', marginBottom: '15px'}}>
+                    <p style={{ textAlign: 'center', color: '#666', fontSize: '14px', marginBottom: '15px' }}>
                         Use any credentials to login
                     </p>
                     <form onSubmit={handleLogin}>
@@ -104,7 +102,7 @@ const LoginPage = () => {
                                 value={loginId}
                                 onChange={(e) => setLoginId(e.target.value)}
                                 required
-                                placeholder="Enter any email"
+                                placeholder="Enter your email"
                             />
                         </div>
                         <div className="form-group password-group">
@@ -116,21 +114,18 @@ const LoginPage = () => {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
-                                    placeholder="Enter any password"
+                                    placeholder="Enter your password"
                                 />
-                                <span 
-                                    className="password-toggle-icon" 
-                                    onClick={togglePasswordVisibility}
-                                >
+                                <span className="password-toggle-icon" onClick={togglePasswordVisibility}>
                                     {showPassword ? <FaEyeSlash /> : <FaEye />}
                                 </span>
                             </div>
                         </div>
-                        <button type="submit" className="login-btn">
-                            Login
-                        </button>
+                        <button type="submit" className="login-btn">Login</button>
                     </form>
-                    <a href="#" className="forgot-password">Forgot Password?</a>
+                    <a href="#" className="forgot-password" onClick={(e) => e.preventDefault()}>
+                        Forgot Password?
+                    </a>
                 </div>
             </main>
             <Footer />
