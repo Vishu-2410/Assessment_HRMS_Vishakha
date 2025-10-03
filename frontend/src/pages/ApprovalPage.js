@@ -1,38 +1,37 @@
-import React, { useState, useEffect } from 'react'; // ✅ useState and useEffect for state management
+import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import './css/ApprovalPage.css';
 
 const ApprovalPage = () => {
-    const [approvals, setApprovals] = useState([]); // ✅ Store approval requests
-    const [selectedStatus, setSelectedStatus] = useState('All'); // ✅ Filter Pending/Approved/Disapproved
-    const [currentPage, setCurrentPage] = useState(1); // ✅ Pagination
-    const itemsPerPage = 5; // ✅ Items per page
+    const [approvals, setApprovals] = useState([]);
+    const [selectedStatus, setSelectedStatus] = useState('All');
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
 
-    // ✅ Load approvals from localStorage
+    // Load all approvals from localStorage
     useEffect(() => {
-        const storedApprovals = JSON.parse(localStorage.getItem('approvals') || '[]'); 
+        const storedApprovals = JSON.parse(localStorage.getItem('approvals') || '[]');
         setApprovals(storedApprovals);
     }, []);
 
-    // ✅ Filter approvals based on selected status
+    // Filter approvals by status
     const filteredApprovals = selectedStatus === 'All'
         ? approvals
         : approvals.filter(req => req.status === selectedStatus);
 
+    // Pagination logic
     const totalPages = Math.ceil(filteredApprovals.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const paginatedApprovals = filteredApprovals.slice(startIndex, startIndex + itemsPerPage);
 
-    // ✅ Approve/Disapprove action
-    const handleApproval = (index, status) => {
-        const actualIndex = approvals.findIndex(req => req.code === paginatedApprovals[index].code);
-        if (actualIndex !== -1) {
-            const updatedApprovals = [...approvals];
-            updatedApprovals[actualIndex].status = status;
-            setApprovals(updatedApprovals);
-            localStorage.setItem('approvals', JSON.stringify(updatedApprovals)); // ✅ Persist changes
-        }
+    // Approve / Disapprove action
+    const handleApproval = (requestId, status) => {
+        const updatedApprovals = approvals.map(req => 
+            req.id === requestId ? { ...req, status } : req
+        );
+        setApprovals(updatedApprovals);
+        localStorage.setItem('approvals', JSON.stringify(updatedApprovals));
     };
 
     return (
@@ -47,9 +46,9 @@ const ApprovalPage = () => {
                         <label>Status:</label>
                         <select 
                             value={selectedStatus} 
-                            onChange={(e) => { 
-                                setSelectedStatus(e.target.value); 
-                                setCurrentPage(1); // ✅ Reset page on filter change
+                            onChange={(e) => {
+                                setSelectedStatus(e.target.value);
+                                setCurrentPage(1); // Reset page when filter changes
                             }}
                         >
                             <option value="All">All</option>
@@ -78,29 +77,30 @@ const ApprovalPage = () => {
                                     </tr>
                                 ) : (
                                     paginatedApprovals.map((req, idx) => (
-                                        <tr key={req.code}>
+                                        <tr key={req.id}>
                                             <td>{startIndex + idx + 1}</td>
-                                            <td>{req.name.split(' ')[0]}</td> {/* ✅ Show first name only */}
+                                            <td>{req.name}</td> {/* Full name can be used */}
                                             <td>{req.code}</td>
                                             <td>{req.status}</td>
                                             <td className="action-buttons">
-                                                {req.status === 'Pending' && ( // ✅ Only Pending can take action
+                                                {req.status === 'Pending' ? (
                                                     <>
-                                                        <button 
-                                                            onClick={() => handleApproval(idx, 'Approved')} 
+                                                        <button
+                                                            onClick={() => handleApproval(req.id, 'Approved')}
                                                             className="approve-btn"
                                                         >
                                                             Approve
                                                         </button>
-                                                        <button 
-                                                            onClick={() => handleApproval(idx, 'Disapproved')} 
+                                                        <button
+                                                            onClick={() => handleApproval(req.id, 'Disapproved')}
                                                             className="disapprove-btn"
                                                         >
                                                             Disapprove
                                                         </button>
                                                     </>
+                                                ) : (
+                                                    <span>—</span>
                                                 )}
-                                                {req.status !== 'Pending' && <span>—</span>} {/* ✅ No action for non-pending */}
                                             </td>
                                         </tr>
                                     ))
@@ -119,16 +119,16 @@ const ApprovalPage = () => {
                                 &lt;
                             </button>
                             {Array.from({ length: totalPages }, (_, i) => i + 1).map(num => (
-                                <button 
-                                    key={num} 
-                                    className={currentPage === num ? "active" : ""} 
+                                <button
+                                    key={num}
+                                    className={currentPage === num ? "active" : ""}
                                     onClick={() => setCurrentPage(num)}
                                 >
                                     {num}
                                 </button>
                             ))}
-                            <button 
-                                disabled={currentPage === totalPages} 
+                            <button
+                                disabled={currentPage === totalPages}
                                 onClick={() => setCurrentPage(prev => prev + 1)}
                             >
                                 &gt;

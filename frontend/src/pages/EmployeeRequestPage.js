@@ -6,27 +6,41 @@ import './css/EmployeeRequestPage.css';
 const EmployeeRequestPage = () => {
     const [requests, setRequests] = useState([]);
     const [requestText, setRequestText] = useState('');
+    const [currentUser, setCurrentUser] = useState(null);
 
-    // Load requests from localStorage
+    // Load employee info and requests
     useEffect(() => {
-        const storedRequests = JSON.parse(localStorage.getItem('requests') || '[]');
-        setRequests(storedRequests);
+        // Get logged-in user info from localStorage (adjust based on your login setup)
+        const loggedInEmail = localStorage.getItem('email'); // store email at login
+        const employees = JSON.parse(localStorage.getItem('employees') || '[]');
+        const user = employees.find(emp => emp.email === loggedInEmail);
+        setCurrentUser(user);
+
+        // Load only this employee's requests
+        const storedApprovals = JSON.parse(localStorage.getItem('approvals') || '[]');
+        const myRequests = storedApprovals.filter(req => req.code === user?.code);
+        setRequests(myRequests);
     }, []);
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!requestText.trim()) return;
+        if (!requestText.trim() || !currentUser) return;
 
         const newRequest = {
             id: Date.now(),
+            code: currentUser.code,
+            name: currentUser.name,
             text: requestText,
             status: 'Pending',
             date: new Date().toLocaleDateString()
         };
 
-        const updatedRequests = [...requests, newRequest];
-        setRequests(updatedRequests);
-        localStorage.setItem('requests', JSON.stringify(updatedRequests));
+        const storedApprovals = JSON.parse(localStorage.getItem('approvals') || '[]');
+        const updatedApprovals = [...storedApprovals, newRequest];
+        localStorage.setItem('approvals', JSON.stringify(updatedApprovals));
+
+        // Update employee view
+        setRequests(prev => [...prev, newRequest]);
         setRequestText('');
     };
 
