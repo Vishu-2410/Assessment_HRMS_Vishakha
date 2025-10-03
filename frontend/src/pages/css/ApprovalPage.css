@@ -1,93 +1,224 @@
 /* ApprovalPage.css */
 
 .approval-main {
-  padding: 20px;
-  text-align: center;
-  flex-grow: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-}
-
-.approval-content {
-  max-width: 800px;
-  width: 100%;
-  background: rgba(255, 255, 255, 0.2);
-  padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
-/* AddEmployeePage.css */
-/* ... existing styles ... */
-
-.add-employee-main {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-grow: 1;
     padding: 20px;
-    width: 100%; /* Ensure full width */
-    box-sizing: border-box; /* Include padding in width calculation */
+    width: 100%;
+    box-sizing: border-box;
 }
 
-.add-employee-box {
+.approval-content {
     background: rgba(255, 255, 255, 0.2);
     padding: 40px;
     border-radius: 15px;
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 255, 255, 0.18);
     width: 100%;
-    max-width: 500px;
+    max-width: 900px;
     text-align: center;
-    color: #2c3e50;
 }
 
-/* ... existing styles for form elements ... */
+.approval-content h2 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 30px;
+    border-bottom: 3px solid #e74c3c;
+    display: inline-block;
+    padding-bottom: 5px;
+    white-space: nowrap;
+}
 
-/* Responsive Styles */
+/* --- Filter --- */
+.filter-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 25px;
+    gap: 15px;
+}
+
+.filter-container label {
+    font-weight: 600;
+    color: #555;
+    white-space: nowrap;
+}
+
+.filter-container select {
+    padding: 8px 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-container select:focus {
+    outline: none;
+    border-color: #e74c3c;
+    box-shadow: 0 0 5px rgba(231, 76, 60, 0.3);
+}
+
+/* --- Approval Table --- */
+.approval-table-container {
+    overflow-x: auto;
+}
+
+.approval-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.approval-table th,
+.approval-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+    white-space: nowrap;
+}
+
+.approval-table th {
+    background-color: #2c3e50;
+    color: #fff;
+    font-weight: 600;
+}
+
+.approval-table td {
+    color: #333;
+}
+
+/* Alternate row colors */
+.approval-table tbody tr:nth-child(even) {
+    background-color: #f1f3f5;
+}
+
+.approval-table tbody tr:hover {
+    background-color: #e9ecef;
+    transition: background-color 0.3s ease;
+}
+
+/* --- Action Buttons --- */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.approve-btn,
+.disapprove-btn {
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.approve-btn {
+    background: #27ae60;
+    color: #fff;
+}
+
+.approve-btn:hover {
+    background: #219150;
+    transform: scale(1.05);
+}
+
+.disapprove-btn {
+    background: #e74c3c;
+    color: #fff;
+}
+
+.disapprove-btn:hover {
+    background: #c0392b;
+    transform: scale(1.05);
+}
+
+/* --- Pagination --- */
+.pagination {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 6px;
+    margin-top: 20px;
+}
+
+.pagination button {
+    border: 1px solid #ddd;
+    background: #fff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.pagination button:hover:not(:disabled) {
+    background: #e74c3c;
+    color: #fff;
+    border-color: #e74c3c;
+}
+
+.pagination button.active {
+    background: #2c3e50;
+    color: #fff;
+    font-weight: bold;
+    border-color: #2c3e50;
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* --- Responsive --- */
 @media (max-width: 768px) {
-    .add-employee-box {
+    .approval-content {
         padding: 25px;
     }
-    
-    .add-employee-box h2 {
-        font-size: 28px;
-        margin-bottom: 20px;
+
+    .approval-content h2 {
+        font-size: 24px;
     }
-    
-    .add-emp-btn {
-        max-width: 180px;
-        padding: 12px 20px;
-        font-size: 16px;
+
+    .approval-table th,
+    .approval-table td {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .filter-container {
+        gap: 10px;
     }
 }
 
 @media (max-width: 480px) {
-    .add-employee-box {
+    .approval-content {
         padding: 20px;
     }
-    
-    .add-employee-box h2 {
-        font-size: 24px;
-        margin-bottom: 15px;
-        /* prevent heading from wrapping on two lines */
-        white-space: nowrap; 
-    }
-    
-    .add-employee-form input,
-    .add-employee-form label {
-        font-size: 14px;
+
+    .approval-content h2 {
+        font-size: 20px;
     }
 
-    .add-emp-btn {
-        max-width: 150px;
-        padding: 10px 15px;
-        font-size: 14px;
+    .approval-table th,
+    .approval-table td {
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    .approve-btn,
+    .disapprove-btn {
+        font-size: 12px;
+        padding: 5px 8px;
     }
 }

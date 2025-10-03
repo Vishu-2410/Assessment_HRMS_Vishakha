@@ -119,6 +119,11 @@ const AddEmployeePage = () => {
                         </div>
 
                         <div className="form-group">
+                            <label>Set Password</label>
+                            <input type="text" name="password" value={formData.password} readOnly /> {/* ✅ readonly */}
+                        </div>
+
+                        <div className="form-group">
                             <label>Email *</label>
                             <input
                                 type="email"
@@ -130,10 +135,7 @@ const AddEmployeePage = () => {
                             />
                         </div>
 
-                        <div className="form-group">
-                            <label>Set Password</label>
-                            <input type="text" name="password" value={formData.password} readOnly /> {/* ✅ readonly */}
-                        </div>
+            
 
                         <div className="form-group">
                             <label>Date of Joining *</label>

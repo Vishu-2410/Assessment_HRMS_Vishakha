@@ -4,51 +4,63 @@ import Footer from '../components/Footer';
 import './css/EmployeeDashboardPage.css';
 
 const EmployeeDashboardPage = () => {
-    const [employees, setEmployees] = useState([]);
+    const [employee, setEmployee] = useState(null);
 
-    // Load employees from localStorage
     useEffect(() => {
-        const storedEmployees = JSON.parse(localStorage.getItem('employees') || '[]');
-        setEmployees(storedEmployees);
+        // Get logged-in user email
+        const loggedInEmail = localStorage.getItem('loggedInUserEmail');
+        const employees = JSON.parse(localStorage.getItem('employees') || '[]');
+
+        // Find employee who is logged in
+        const currentEmp = employees.find(emp => emp.email === loggedInEmail);
+        setEmployee(currentEmp);
     }, []);
+
+    if (!employee) {
+        return (
+            <div className="container">
+                <Header />
+                <main className="employee-dashboard-main">
+                    <div className="dashboard-box">
+                        <h2>Employee Dashboard</h2>
+                        <p>No employee data found for logged-in user.</p>
+                    </div>
+                </main>
+                <Footer />
+            </div>
+        );
+    }
 
     return (
         <div className="container">
             <Header />
-            <main className="employee-dashboard-main">
-                <div className="dashboard-box">
-                    <h2>Employee Dashboard</h2>
 
-                    {employees.length === 0 ? (
-                        <p>No employee data available.</p>
-                    ) : (
-                        <table className="dashboard-table">
-                            <thead>
-                                <tr>
-                                    <th>Sr.</th>
-                                    <th>Name</th>
-                                    <th>Code</th>
-                                    <th>Dept.</th>
-                                    <th>Project</th>
-                                    <th>Email</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {employees.map((emp, idx) => (
-                                    <tr key={emp.code}>
-                                        <td>{idx + 1}</td>
-                                        <td>{emp.name}</td>
-                                        <td>{emp.code}</td>
-                                        <td>{emp.dept}</td>
-                                        <td>{emp.proj}</td>
-                                        <td>{emp.email}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    )}
+            <main className="employee-dashboard-main">
+                {/* Welcome message */}
+                <div className="welcome-banner">
+                    <h3>Welcome, <span>{employee.name}</span></h3>
+                </div>
+
+                {/* Employee Profile Details */}
+                <div className="dashboard-box">
+                    <h2>My Profile</h2>
+                    <div className="emp-details">
+                        <p><strong>Employee Code:</strong> {employee.code}</p>
+                        <p><strong>Date of Joining:</strong> 
+                            {employee.doj
+                                ? new Date(employee.doj).toLocaleDateString('en-GB', {
+                                    day: '2-digit', month: 'short', year: 'numeric'
+                                })
+                                : '—'}
+                        </p>
+                        <p><strong>Employee Reporting Manager:</strong> —</p>
+                        <p><strong>Department:</strong> {employee.dept}</p>
+                        <p><strong>Project:</strong> {employee.proj}</p>
+                        <p><strong>Email:</strong> {employee.email}</p>
+                    </div>
                 </div>
             </main>
+
             <Footer />
         </div>
     );
