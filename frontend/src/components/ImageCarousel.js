@@ -58,12 +58,15 @@ const ImageCarousel = () => {
           ))}
         </div>
         
+        {/*  REMOVED: Prev and Next buttons as per Day-1 requirement */}
+        {/*
         <button className="carousel-btn prev" onClick={prevSlide}>
           <i className="fas fa-chevron-left"></i>
         </button>
         <button className="carousel-btn next" onClick={nextSlide}>
           <i className="fas fa-chevron-right"></i>
         </button>
+        */}
       </div>
       
       <div className="carousel-dots">

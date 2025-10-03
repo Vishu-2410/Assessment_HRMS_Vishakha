@@ -8,7 +8,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  position: fixed; /* Fixed position */
+  /* position: fixed; Fixed position */
+  position: relative; /* CHANGED: was 'fixed', now 'relative' so footer scrolls with content */
+  /* bottom: 0; 
   bottom: 0; /* Align to the bottom of the viewport */
   left: 0;
   z-index: 1000; /* Ensure it stays on top of other content */

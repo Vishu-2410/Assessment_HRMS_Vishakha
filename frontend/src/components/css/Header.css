@@ -1,5 +1,6 @@
 /* Header.css */
-
+/* CHANGED: position should be relative instead of fixed 
+   so that the header scrolls with page content */
 .header {
   display: flex;
   align-items: center;
@@ -9,7 +10,10 @@
   border-bottom: 4px solid #e74c3c;
   position: relative;
   overflow: hidden;
+ 
 }
+
+
 
 .header::before {
   content: '';
