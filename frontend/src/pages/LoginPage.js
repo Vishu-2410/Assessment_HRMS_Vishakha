@@ -1,10 +1,11 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { login as loginAPI } from '../api'; // ✅ Import login API
+import { login as loginAPI } from '../api';
 import './css/LoginPage.css';
 
 const LoginPage = () => {
@@ -24,39 +25,40 @@ const LoginPage = () => {
         }
 
         try {
-            // ✅ Use API from api.js
+            // ✅ Match backend expected body
             const response = await loginAPI({
-                email: loginId,
-                password: password,
+                loginAs,
+                loginId,
+                email: loginId, // still pass as email for HR case
+                password,
             });
 
             const data = response.data;
 
-            if (data.success || data.token) { // adjust based on backend response
-                const user = data.user || { role: loginAs, email: loginId };
-                const token = data.token || 'fallback-token-' + Date.now();
-
+            if (data.token && data.role) {
                 // Save auth info in localStorage
                 localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('role', user.role);
-                localStorage.setItem('loggedInUserEmail', user.email);
-                localStorage.setItem('authToken', token);
+                localStorage.setItem('role', data.role);
+                localStorage.setItem('loggedInUserEmail', loginId);
+                localStorage.setItem('authToken', data.token);
 
                 // Update context
-                login(user.role);
+                login(data.role);
 
                 alert('Login Successful!');
 
                 // Navigate based on role
-                if (user.role === 'HR') {
+                if (data.role === 'HR') {
                     navigate('/add-employee');
                 } else {
                     navigate('/employee-dashboard');
                 }
+            } else {
+                alert('Login failed! Please check your credentials.');
             }
         } catch (error) {
-            console.error('Login Error:', error);
-            alert('Login failed! Please check your credentials.');
+            console.error('Login Error:', error.response?.data || error.message);
+            alert(error.response?.data?.message || 'Login failed! Please try again.');
         }
     };
 
@@ -69,7 +71,7 @@ const LoginPage = () => {
                 <div className="login-box">
                     <h2>LOGIN</h2>
                     <p style={{ textAlign: 'center', color: '#666', fontSize: '14px', marginBottom: '15px' }}>
-                        Use any credentials to login
+                        Use your credentials to login
                     </p>
                     <form onSubmit={handleLogin}>
                         <div className="form-group">
@@ -86,14 +88,20 @@ const LoginPage = () => {
                             </select>
                         </div>
                         <div className="form-group">
-                            <label htmlFor="login-id">Login ID (Email)</label>
+                            <label htmlFor="login-id">
+                                {loginAs === 'Employee' ? 'Login ID (Email or Code)' : 'Email'}
+                            </label>
                             <input
-                                type="email"
+                                type="text"
                                 id="login-id"
                                 value={loginId}
                                 onChange={(e) => setLoginId(e.target.value)}
                                 required
-                                placeholder="Enter your email"
+                                placeholder={
+                                    loginAs === 'Employee'
+                                        ? 'Enter your employee code or email'
+                                        : 'Enter your email'
+                                }
                             />
                         </div>
                         <div className="form-group password-group">
@@ -125,3 +133,4 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
+
