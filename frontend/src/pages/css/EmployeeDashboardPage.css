@@ -1,69 +1,54 @@
 .employee-dashboard-main {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 30px;
-  flex-grow: 1;
-  width: 100%;
-  box-sizing: border-box;
+    padding: 20px;
+    min-height: 80vh;
+    background-color: #f9f9f9;
 }
 
-/* Welcome Banner */
-.welcome-banner {
-  align-self: flex-end; /* right corner */
-  margin-bottom: 20px;
-  font-size: 18px;
-  font-weight: 600;
-  color: #2c3e50;
+.dashboard-top-banner {
+    display: flex;
+    justify-content: flex-start; /* top left corner */
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 8px;
+    margin-bottom: 20px;
 }
 
-.welcome-banner span {
-  color: #e74c3c;
+.dashboard-top-banner h2 {
+    margin: 0;
+    font-size: 1.8rem;
 }
 
-/* Profile Box */
-.dashboard-box {
-  background: rgba(255, 255, 255, 0.2);
-  padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  max-width: 600px;
-  width: 100%;
-  text-align: left;
+.dashboard-top-banner span {
+    font-weight: bold;
 }
 
-.dashboard-box h2 {
-  font-size: 28px;
-  color: #2c3e50;
-  border-bottom: 3px solid #e74c3c;
-  display: inline-block;
-  margin-bottom: 20px;
+.dashboard-profile-card {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    max-width: 600px;
+    margin: 0 auto;
 }
 
-.emp-details p {
-  font-size: 16px;
-  margin: 10px 0;
-  color: #333;
+.profile-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #e0e0e0;
 }
 
-.emp-details strong {
-  color: #2c3e50;
+.profile-row:last-child {
+    border-bottom: none;
 }
 
-@media (max-width: 768px) {
-  .welcome-banner {
-    align-self: flex-start; /* move to left on smaller screens */
-    font-size: 16px;
-  }
+.profile-label {
+    font-weight: 600;
+    color: #555;
+}
 
-  .dashboard-box h2 {
-    font-size: 22px;
-  }
-
-  .emp-details p {
-    font-size: 14px;
-  }
+.profile-value {
+    color: #333;
 }

@@ -1,48 +1,56 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { createRequest, getMyRequests } from '../api';
 import './css/EmployeeRequestPage.css';
 
 const EmployeeRequestPage = () => {
     const [requests, setRequests] = useState([]);
     const [requestText, setRequestText] = useState('');
-    const [currentUser, setCurrentUser] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    // Load employee info and requests
+    // Load employee requests from API
     useEffect(() => {
-        // Get logged-in user info from localStorage (adjust based on your login setup)
-        const loggedInEmail = localStorage.getItem('email'); // store email at login
-        const employees = JSON.parse(localStorage.getItem('employees') || '[]');
-        const user = employees.find(emp => emp.email === loggedInEmail);
-        setCurrentUser(user);
-
-        // Load only this employee's requests
-        const storedApprovals = JSON.parse(localStorage.getItem('approvals') || '[]');
-        const myRequests = storedApprovals.filter(req => req.code === user?.code);
-        setRequests(myRequests);
+        const fetchRequests = async () => {
+            try {
+                const res = await getMyRequests();
+                setRequests(res.data); // backend returns array of requests
+            } catch (err) {
+                console.error("Error fetching requests:", err.response || err);
+                alert("Failed to load requests.");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchRequests();
     }, []);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!requestText.trim() || !currentUser) return;
+        if (!requestText.trim()) return;
 
-        const newRequest = {
-            id: Date.now(),
-            code: currentUser.code,
-            name: currentUser.name,
-            text: requestText,
-            status: 'Pending',
-            date: new Date().toLocaleDateString()
-        };
-
-        const storedApprovals = JSON.parse(localStorage.getItem('approvals') || '[]');
-        const updatedApprovals = [...storedApprovals, newRequest];
-        localStorage.setItem('approvals', JSON.stringify(updatedApprovals));
-
-        // Update employee view
-        setRequests(prev => [...prev, newRequest]);
-        setRequestText('');
+        try {
+            const res = await createRequest({ text: requestText });
+            // res.data should contain the created request
+            setRequests(prev => [...prev, res.data]);
+            setRequestText('');
+        } catch (err) {
+            console.error("Error submitting request:", err.response || err);
+            alert("Failed to submit request.");
+        }
     };
+
+    if (loading) {
+        return (
+            <div className="container">
+                <Header />
+                <main className="employee-request-main">
+                    <p>Loading requests...</p>
+                </main>
+                <Footer />
+            </div>
+        );
+    }
 
     return (
         <div className="container">
@@ -76,11 +84,11 @@ const EmployeeRequestPage = () => {
                             </thead>
                             <tbody>
                                 {requests.map((req, idx) => (
-                                    <tr key={req.id}>
+                                    <tr key={req._id || idx}>
                                         <td>{idx + 1}</td>
                                         <td>{req.text}</td>
                                         <td>{req.status}</td>
-                                        <td>{req.date}</td>
+                                        <td>{new Date(req.createdAt).toLocaleDateString('en-GB')}</td>
                                     </tr>
                                 ))}
                             </tbody>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { getEmployees, updateEmployee, deleteEmployee } from '../api';
 import './css/ManageEmployeePage.css';
 
 const ManageEmployeePage = () => {
@@ -21,9 +22,19 @@ const ManageEmployeePage = () => {
         'Sales and Marketing': ['Sales', 'Marketing', 'Business Development']
     };
 
+    // ✅ Fetch employees from backend
+    const fetchEmployees = async () => {
+        try {
+            const res = await getEmployees();
+            setEmployees(res.data);
+        } catch (err) {
+            console.error("Error fetching employees:", err.response || err);
+            alert("Failed to fetch employees.");
+        }
+    };
+
     useEffect(() => {
-        const storedEmployees = JSON.parse(localStorage.getItem('employees') || '[]');
-        setEmployees(storedEmployees);
+        fetchEmployees();
     }, []);
 
     const filteredEmployees = selectedDept === 'All'
@@ -41,35 +52,40 @@ const ManageEmployeePage = () => {
         setCurrentPage(1);
     };
 
-    // ✅ Open modal with selected employee
-    const handleUpdate = (employeeCode) => {
-        const emp = employees.find(e => e.code === employeeCode);
-        setEditEmployee(emp);
+    const handleUpdate = (employee) => {
+        setEditEmployee(employee);
         setIsEditModalOpen(true);
     };
 
-    // ✅ Handle input changes inside modal
     const handleEditChange = (e) => {
         const { name, value } = e.target;
         setEditEmployee(prev => ({ ...prev, [name]: value }));
-        if(name === 'dept') setEditEmployee(prev => ({ ...prev, proj: '' })); // Reset project when dept changes
+        if (name === 'dept') setEditEmployee(prev => ({ ...prev, proj: '' }));
     };
 
-    // ✅ Save edited employee
-    const handleSaveEdit = () => {
-        const updatedEmployees = employees.map(emp =>
-            emp.code === editEmployee.code ? editEmployee : emp
-        );
-        setEmployees(updatedEmployees);
-        localStorage.setItem('employees', JSON.stringify(updatedEmployees));
-        setIsEditModalOpen(false);
+    const handleSaveEdit = async () => {
+        try {
+            const { _id, ...updateData } = editEmployee; // exclude _id
+            await updateEmployee(editEmployee._id, updateData);
+            alert("Employee updated successfully!");
+            setIsEditModalOpen(false);
+            fetchEmployees();
+        } catch (err) {
+            console.error("Error updating employee:", err.response || err);
+            alert("Failed to update employee.");
+        }
     };
 
-    const handleDelete = (employeeCode) => {
+    const handleDelete = async (employeeId) => {
         if (window.confirm("Are you sure you want to delete this employee?")) {
-            const updatedEmployees = employees.filter(emp => emp.code !== employeeCode);
-            setEmployees(updatedEmployees);
-            localStorage.setItem('employees', JSON.stringify(updatedEmployees));
+            try {
+                await deleteEmployee(employeeId);
+                alert("Employee deleted successfully!");
+                fetchEmployees();
+            } catch (err) {
+                console.error("Error deleting employee:", err.response || err);
+                alert("Failed to delete employee.");
+            }
         }
     };
 
@@ -109,16 +125,16 @@ const ManageEmployeePage = () => {
                                         <td colSpan="6" style={{ textAlign: 'center' }}>No employees found.</td>
                                     </tr>
                                 ) : (
-                                    paginatedEmployees.map(emp => (
-                                        <tr key={emp.code}>
-                                            <td>{emp.sr}</td>
-                                            <td>{emp.name.split(' ')[0]}</td>
+                                    paginatedEmployees.map((emp, index) => (
+                                        <tr key={emp._id}>
+                                            <td>{startIndex + index + 1}</td>
+                                            <td>{emp.name}</td>
                                             <td>{emp.code}</td>
                                             <td>{emp.dept}</td>
                                             <td>{emp.proj}</td>
                                             <td className="action-buttons">
-                                                <button className="update-btn" onClick={() => handleUpdate(emp.code)}>✏️</button>
-                                                <button className="delete-btn" onClick={() => handleDelete(emp.code)}>🗑️</button>
+                                                <button className="update-btn" onClick={() => handleUpdate(emp)}>✏️</button>
+                                                <button className="delete-btn" onClick={() => handleDelete(emp._id)}>🗑️</button>
                                             </td>
                                         </tr>
                                     ))
@@ -144,7 +160,7 @@ const ManageEmployeePage = () => {
                         </div>
                     )}
 
-                    {/* ✅ Edit Modal */}
+                    {/* Edit Modal */}
                     {isEditModalOpen && (
                         <div className="modal">
                             <div className="modal-content">

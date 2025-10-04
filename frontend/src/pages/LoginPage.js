@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { login as loginAPI } from '../api'; // ✅ Import login API
 import './css/LoginPage.css';
-
 
 const LoginPage = () => {
     const [loginAs, setLoginAs] = useState('');
@@ -25,24 +24,30 @@ const LoginPage = () => {
         }
 
         try {
-            // Backend login API
-            const response = await axios.post('http://127.0.0.1:8000/api/login', {
+            // ✅ Use API from api.js
+            const response = await loginAPI({
                 email: loginId,
                 password: password,
             });
 
-            if (response.data.success) {
-                const user = response.data.user;
-                const token = response.data.token;
+            const data = response.data;
 
+            if (data.success || data.token) { // adjust based on backend response
+                const user = data.user || { role: loginAs, email: loginId };
+                const token = data.token || 'fallback-token-' + Date.now();
+
+                // Save auth info in localStorage
                 localStorage.setItem('isLoggedIn', 'true');
                 localStorage.setItem('role', user.role);
                 localStorage.setItem('loggedInUserEmail', user.email);
                 localStorage.setItem('authToken', token);
 
+                // Update context
                 login(user.role);
+
                 alert('Login Successful!');
 
+                // Navigate based on role
                 if (user.role === 'HR') {
                     navigate('/add-employee');
                 } else {
@@ -50,22 +55,8 @@ const LoginPage = () => {
                 }
             }
         } catch (error) {
-            console.error("Login Error:", error);
-
-            // Fallback: Local login
-            localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('role', loginAs);
-            localStorage.setItem('loggedInUserEmail', loginId);
-            localStorage.setItem('authToken', 'fallback-token-' + Date.now());
-
-            login(loginAs);
-            alert('Login Successful! (Local Mode)');
-
-            if (loginAs === 'HR') {
-                navigate('/add-employee');
-            } else {
-                navigate('/employee-dashboard'); // Consistent for employees
-            }
+            console.error('Login Error:', error);
+            alert('Login failed! Please check your credentials.');
         }
     };
 

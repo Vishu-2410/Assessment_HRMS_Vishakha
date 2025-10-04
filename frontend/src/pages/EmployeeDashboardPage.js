@@ -1,20 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { getEmployees } from '../api';
 import './css/EmployeeDashboardPage.css';
 
 const EmployeeDashboardPage = () => {
     const [employee, setEmployee] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Get logged-in user email
-        const loggedInEmail = localStorage.getItem('loggedInUserEmail');
-        const employees = JSON.parse(localStorage.getItem('employees') || '[]');
+        const fetchEmployee = async () => {
+            try {
+                const loggedInEmail = localStorage.getItem('loggedInUserEmail');
+                const res = await getEmployees();
+                const employees = res.data;
+                const currentEmp = employees.find(emp => emp.email === loggedInEmail);
+                setEmployee(currentEmp);
+            } catch (err) {
+                console.error("Error fetching employee:", err.response || err);
+                alert("Failed to load employee data.");
+            } finally {
+                setLoading(false);
+            }
+        };
 
-        // Find employee who is logged in
-        const currentEmp = employees.find(emp => emp.email === loggedInEmail);
-        setEmployee(currentEmp);
+        fetchEmployee();
     }, []);
+
+    if (loading) {
+        return (
+            <div className="container">
+                <Header />
+                <main className="employee-dashboard-main">
+                    <div className="dashboard-box">
+                        <p>Loading...</p>
+                    </div>
+                </main>
+                <Footer />
+            </div>
+        );
+    }
 
     if (!employee) {
         return (
@@ -22,8 +47,7 @@ const EmployeeDashboardPage = () => {
                 <Header />
                 <main className="employee-dashboard-main">
                     <div className="dashboard-box">
-                        <h2>Employee Dashboard</h2>
-                        <p>No employee data found for logged-in user.</p>
+                        <p>No employee data found.</p>
                     </div>
                 </main>
                 <Footer />
@@ -36,27 +60,38 @@ const EmployeeDashboardPage = () => {
             <Header />
 
             <main className="employee-dashboard-main">
-                {/* Welcome message */}
-                <div className="welcome-banner">
-                    <h3>Welcome, <span>{employee.name}</span></h3>
+                {/* Top Banner with Welcome */}
+                <div className="dashboard-top-banner">
+                    <h2>Welcome, <span>{employee.name}</span></h2>
                 </div>
 
-                {/* Employee Profile Details */}
-                <div className="dashboard-box">
-                    <h2>My Profile</h2>
-                    <div className="emp-details">
-                        <p><strong>Employee Code:</strong> {employee.code}</p>
-                        <p><strong>Date of Joining:</strong> 
+                {/* Employee Profile Card */}
+                <div className="dashboard-profile-card">
+                    <div className="profile-row">
+                        <div className="profile-label">Employee Code:</div>
+                        <div className="profile-value">{employee.code}</div>
+                    </div>
+                    <div className="profile-row">
+                        <div className="profile-label">Date of Joining:</div>
+                        <div className="profile-value">
                             {employee.doj
                                 ? new Date(employee.doj).toLocaleDateString('en-GB', {
                                     day: '2-digit', month: 'short', year: 'numeric'
                                 })
-                                : '—'}
-                        </p>
-                        <p><strong>Employee Reporting Manager:</strong> —</p>
-                        <p><strong>Department:</strong> {employee.dept}</p>
-                        <p><strong>Project:</strong> {employee.proj}</p>
-                        <p><strong>Email:</strong> {employee.email}</p>
+                                : '-'}
+                        </div>
+                    </div>
+                    <div className="profile-row">
+                        <div className="profile-label">Employee Reporting Manager:</div>
+                        <div className="profile-value">-</div>
+                    </div>
+                    <div className="profile-row">
+                        <div className="profile-label">Department:</div>
+                        <div className="profile-value">{employee.dept}</div>
+                    </div>
+                    <div className="profile-row">
+                        <div className="profile-label">Project:</div>
+                        <div className="profile-value">{employee.proj}</div>
                     </div>
                 </div>
             </main>

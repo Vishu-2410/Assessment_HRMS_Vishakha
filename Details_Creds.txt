@@ -1,0 +1,7 @@
+HRMS Assessment Credentials
+
+Seeded HR User:
+Email: hr@optico.com
+Password: Hrms@123
+
+Employees will be added by HR. No employees are seeded.
